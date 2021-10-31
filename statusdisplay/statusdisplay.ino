@@ -288,46 +288,57 @@ bool displayRoomTemp() {
 
 bool displayDayWeather() {
   if (dayWeatherTime.update() || !gotLastDayWeather ) {
-    retrieveDayWeather(lastDay0Weather, 0);
     retrieveDayWeather(lastDay1Weather, 1);
     retrieveDayWeather(lastDay2Weather, 2);
     retrieveDayWeather(lastDay3Weather, 3);
     retrieveDayWeather(lastDay4Weather, 4);
-    retrieveDayWeather(lastDay5Weather, 5);
   }
   if(gotLastDayWeather) {
-    displayDayWeatherRow(lastDay0Weather, 10,10);
-    displayDayWeatherRow(lastDay1Weather, 10,30);
-    displayDayWeatherRow(lastDay2Weather, 10,50);
-    displayDayWeatherRow(lastDay3Weather, 10,70);
-    displayDayWeatherRow(lastDay4Weather, 10,90);
-    displayDayWeatherRow(lastDay5Weather, 10,110);
+    displayDayWeatherArea(lastDay0Weather, "Om 1 dag", 5,10);
+    displayDayWeatherArea(lastDay1Weather, "Om 2 dagar", 85,10);
+    displayDayWeatherArea(lastDay2Weather, "Om 3 dagar", 5,80);
+    displayDayWeatherArea(lastDay3Weather, "Om 4 dagar", 85,80);
   }
   return true;
 }
 
-void displayDayWeatherRow(DynamicJsonDocument& jsonDocument, int x, int y) {
+void displayDayWeatherArea(DynamicJsonDocument& jsonDocument, char* title, int x, int y) {
     JsonObject json = jsonDocument.as<JsonObject>();
 
-    tft.setTextColor(ST7735_WHITE, ST7735_BLACK);
-    if (json["tempAvg"].as<float>()<-20.0 || json["tempAvg"].as<float>()>25) {
-      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
-    }else if (json["tempAvg"].as<float>()>-2.0 && json["tempAvg"].as<float>()<2) {
-      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
-    }
+    tft.setTextColor(ST7735_GRAY, ST7735_BLACK);
     tft.setTextSize(1);
     tft.setCursor(x, y);
-    tft.printf( "%+0.1f grader", json["tempAvg"].as<float>());
+    tft.printf( "%s", title);
+
+    tft.setTextColor(ST7735_WHITE, ST7735_BLACK);
+    if (json["tempMax"].as<float>()<-20.0 || json["tempMax"].as<float>()>25) {
+      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
+    }else if (json["tempMax"].as<float>()>-2.0 && json["tempMax"].as<float>()<2) {
+      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
+    }
+    tft.setTextSize(2);
+    tft.setCursor(x, y+25);
+    tft.printf( "%+0.0f", json["tempMax"].as<float>());
     
 
     tft.setTextSize(1);
+
+    tft.setTextColor(ST7735_WHITE, ST7735_BLACK);
+    if (json["tempMin"].as<float>()<-20.0 || json["tempMin"].as<float>()>25) {
+      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
+    }else if (json["tempMin"].as<float>()>-2.0 && json["tempMin"].as<float>()<2) {
+      tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
+    }
+    tft.setCursor(x+45, y+15);
+    tft.printf( "%+0.0f\xF7", json["tempMin"].as<float>());
+
     tft.setTextColor(ST7735_WHITE, ST7735_BLACK);
     if (json["windAvg"].as<float>()<8.0) {
       tft.setTextColor(ST7735_GRAY, ST7735_BLACK);
     }else if(json["windAvg"].as<float>()>14.0) {
       tft.setTextColor(ST7735_YELLOW, ST7735_BLACK);
     }
-    tft.setCursor(x+75, y);
+    tft.setCursor(x+45, y+25);
     tft.printf( "%0.0f m/s", json["windAvg"].as<float>());
     
 
@@ -339,7 +350,7 @@ void displayDayWeatherRow(DynamicJsonDocument& jsonDocument, int x, int y) {
     }
     
     tft.setTextSize(1);
-    tft.setCursor(x+115, y);
+    tft.setCursor(x+45, y+35);
     tft.printf( "%0.0f mm", json["precipitationTotal"].as<float>());
     
 }
